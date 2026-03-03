@@ -1,0 +1,23 @@
+{
+  "name": "JadaJaz Radio",
+  "short_name": "JadaJaz",
+  "description": "DJ Mixes by Jada Talia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://i1.sndcdn.com/artworks-hFRrQg3J9doMqyT1-WNzGDg-t512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i1.sndcdn.com/artworks-hFRrQg3J9doMqyT1-WNzGDg-t200x200.png",
+      "sizes": "200x200",
+      "type": "image/png"
+    }
+  ]
+}

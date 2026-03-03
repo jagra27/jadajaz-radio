@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<!-- PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JadaJaz">
+<link rel="apple-touch-icon" href="https://i1.sndcdn.com/artworks-hFRrQg3J9doMqyT1-WNzGDg-t512x512.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#080808">
+
+<title>JadaJaz Radio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #07070f;
+  --shell: #0f0f1a;
+  --panel: #0a0a14;
+  --border: #1e1e30;
+  --purple: #7b2fff;
+  --blue: #2f8fff;
+  --violet: #5522cc;
+  --pink: #cc44ff;
+  --glow-p: rgba(123,47,255,0.35);
+  --glow-b: rgba(47,143,255,0.25);
+  --lcd-bg: #06060f;
+  --lcd-txt: #aa88ff;
+  --chrome: #252535;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:pan-x; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(123,47,255,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 30% at 50% 0%, rgba(47,143,255,0.08) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  padding: 12px;
+}
+
+/* ── CASSETTE SWIPER ── */
+.swiper-wrap {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 10px;
+}
+
+.swiper-hint {
+  text-align: center;
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  color: rgba(123,47,255,0.45);
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+  transition: opacity 0.4s;
+}
+
+.swiper-viewport {
+  overflow: hidden;
+  width: 100%;
+  cursor: grab;
+  padding: 6px 0;
+}
+.swiper-viewport:active { cursor: grabbing; }
+
+.swiper-track {
+  display: flex;
+  gap: 14px;
+  transition: transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94);
+  padding: 0 calc(50% - 70px);
+}
+
+/* ── CASSETTE CARD ── */
+.c-card {
+  flex-shrink: 0;
+  width: 140px;
+  height: 90px;
+  transition: transform 0.3s, opacity 0.3s, filter 0.3s;
+  opacity: 0.35;
+  transform: scale(0.85);
+  filter: brightness(0.6) saturate(0.6);
+  user-select: none;
+}
+.c-card.active {
+  opacity: 1;
+  transform: scale(1);
+  filter: brightness(1) saturate(1);
+}
+
+.c-shell {
+  width: 100%; height: 100%;
+  border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(145deg, #0d0d1f, #151528);
+}
+
+.c-top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px 2px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+}
+.c-num  { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; opacity:.4; margin-bottom:3px; }
+.c-name { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; line-height:1.1; }
+.c-genre{ font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; opacity:.45; margin-top:2px; }
+
+.c-bot {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  position: relative;
+}
+.c-reel {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  display: flex; align-items:center; justify-content:center;
+}
+.c-reel::after { content:''; width:5px; height:5px; border-radius:50%; background:rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.18); }
+.c-win {
+  position: absolute; left:50%; transform:translateX(-50%);
+  width: 36px; height: 9px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+/* tape accent colors */
+.c-card:nth-child(1) .c-name { color: #bb77ff; }
+.c-card:nth-child(1) .c-shell { background: linear-gradient(145deg, #100020, #200040); border-color: rgba(187,119,255,0.15); }
+.c-card:nth-child(2) .c-name { color: #77aaff; }
+.c-card:nth-child(2) .c-shell { background: linear-gradient(145deg, #001030, #002060); border-color: rgba(119,170,255,0.15); }
+.c-card:nth-child(3) .c-name { color: #ee88ff; }
+.c-card:nth-child(3) .c-shell { background: linear-gradient(145deg, #150025, #2a0050); border-color: rgba(238,136,255,0.15); }
+.c-card:nth-child(4) .c-name { color: #aa77ff; }
+.c-card:nth-child(4) .c-shell { background: linear-gradient(145deg, #0a0020, #180040); border-color: rgba(170,119,255,0.15); }
+.c-card:nth-child(5) .c-name { color: #88bbff; }
+.c-card:nth-child(5) .c-shell { background: linear-gradient(145deg, #000820, #001040); border-color: rgba(136,187,255,0.15); }
+
+/* ── BOOMBOX ── */
+.bb-wrap { width: 100%; max-width: 480px; }
+
+.bb-handle {
+  width: 100px; height: 20px;
+  border: 2.5px solid #1a1a2a;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  margin: 0 auto -2px;
+  position: relative; z-index: 1;
+}
+
+.bb-shell {
+  background: linear-gradient(180deg, #131320 0%, #0d0d18 50%, #111120 100%);
+  border-radius: 16px 16px 12px 12px;
+  border: 2px solid #1e1e30;
+  padding: 14px 14px 18px;
+  box-shadow:
+    inset 0 0 0 1px #252535,
+    0 8px 40px rgba(0,0,0,0.95),
+    0 0 60px rgba(123,47,255,0.08);
+  transition: box-shadow 0.5s;
+}
+.bb-shell.playing {
+  box-shadow:
+    inset 0 0 0 1px #2d2d45,
+    0 8px 40px rgba(0,0,0,0.95),
+    0 0 80px rgba(123,47,255,0.2),
+    0 0 40px rgba(47,143,255,0.1);
+}
+
+/* top row */
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.station-id {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.station-call {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 6px;
+  background: linear-gradient(90deg, var(--purple), var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.station-sub {
+  font-family: 'VT323', monospace;
+  font-size: 12px;
+  color: rgba(123,47,255,0.4);
+  letter-spacing: 3px;
+  margin-top: 1px;
+}
+.leds { display:flex; gap:5px; align-items:center; }
+.led {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #111;
+  border: 1px solid #222;
+  transition: all 0.2s;
+}
+.led.p  { }
+.led.b  { }
+.led.w  { }
+.led.p.on  { background:#9955ff; box-shadow:0 0 8px #9955ff; border-color:#7733dd; }
+.led.b.on  { background:var(--blue); box-shadow:0 0 8px var(--blue); border-color:#1166cc; }
+.led.w.on  { background:#ccccff; box-shadow:0 0 6px #ccccff; border-color:#aaaadd; }
+
+/* main row */
+.main-row { display:flex; gap:10px; align-items:stretch; }
+
+/* SPEAKER */
+.spk {
+  width: 76px; flex-shrink:0;
+  background: var(--panel);
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 5px;
+  gap: 5px;
+}
+.spk-ring {
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: #080810;
+  border: 2.5px solid #1a1a28;
+  display: flex; align-items:center; justify-content:center;
+  position: relative; overflow:hidden;
+  box-shadow: inset 0 0 14px rgba(0,0,0,0.9);
+}
+.spk-ring::before {
+  content:'';
+  position:absolute; inset:0;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(123,47,255,0.04) 3px,rgba(123,47,255,0.04) 4px),
+    repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(123,47,255,0.04) 3px,rgba(123,47,255,0.04) 4px);
+}
+.spk-cone {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #151525 30%, #252540 80%, #101020 100%);
+  border: 2px solid #2a2a40;
+  position: relative; z-index:1;
+}
+.spk-cone.pulse { animation: sPulse 0.26s ease-in-out infinite alternate; }
+@keyframes sPulse {
+  from { transform:scale(1);    box-shadow:0 0 0 rgba(123,47,255,0); }
+  to   { transform:scale(1.07); box-shadow:0 0 16px rgba(123,47,255,0.5); }
+}
+.spk-ch { font-family:'VT323',monospace; font-size:11px; color:#252535; letter-spacing:2px; }
+
+/* CENTER */
+.center { flex:1; display:flex; flex-direction:column; gap:8px; min-width:0; }
+
+/* LCD */
+.lcd {
+  background: var(--lcd-bg);
+  border: 1.5px solid #151528;
+  border-radius: 4px;
+  padding: 7px 9px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 14px rgba(0,0,0,0.7), 0 0 12px rgba(123,47,255,0.08);
+}
+.lcd::after {
+  content:'';
+  position:absolute; inset:0;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 3px);
+  pointer-events:none;
+}
+.lcd-status { font-family:'VT323',monospace; font-size:12px; color:rgba(170,136,255,0.45); letter-spacing:2px; }
+.lcd-main   {
+  font-family:'VT323',monospace; font-size:20px; color:var(--lcd-txt);
+  letter-spacing:1px; text-shadow:0 0 10px rgba(170,136,255,0.6);
+  white-space:nowrap; overflow:hidden;
+}
+.lcd-scroll { display:inline-block; }
+.lcd-scroll.go { animation: marquee 9s linear infinite; }
+@keyframes marquee { 0%{transform:translateX(100%)} 100%{transform:translateX(-200%)} }
+.lcd-time { font-family:'VT323',monospace; font-size:12px; color:rgba(170,136,255,0.4); letter-spacing:2px; }
+
+/* DECK */
+.deck {
+  background: var(--panel);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 7px;
+}
+.deck-slot {
+  width:100%; height:54px;
+  background: #060610;
+  border: 1px solid #111120;
+  border-radius: 3px;
+  position: relative;
+  display: flex; align-items:center; justify-content:center;
+  overflow: hidden;
+}
+.slot-txt {
+  font-family:'VT323',monospace; font-size:13px;
+  color: #1e1e30; letter-spacing:3px;
+  transition: opacity 0.3s;
+}
+.deck-tape {
+  position: absolute; inset:2px;
+  border-radius: 3px;
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 4px 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  transform: translateY(-120%);
+  transition: transform 0.55s cubic-bezier(0.34,1.4,0.64,1);
+  overflow: hidden;
+}
+.deck-tape.in { transform: translateY(0); }
+.d-reel {
+  width:20px; height:20px; border-radius:50%;
+  background:rgba(0,0,0,0.6);
+  border:2px solid rgba(255,255,255,0.12);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.d-reel::after { content:''; width:6px; height:6px; border-radius:50%; background:rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.15); }
+.d-reel.spin { animation: spin 1.3s linear infinite; }
+@keyframes spin { to{ transform:rotate(360deg); } }
+.d-info { flex:1; text-align:center; padding:0 5px; min-width:0; }
+.d-name {
+  font-family:'Bebas Neue',sans-serif; font-size:12px; letter-spacing:2px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  color: var(--lcd-txt);
+}
+.d-sub { font-family:'Share Tech Mono',monospace; font-size:7px; opacity:.4; letter-spacing:1px; color:#fff; }
+
+.vu-row { display:flex; gap:2px; align-items:flex-end; height:12px; margin-top:5px; }
+.vu-b { flex:1; background:#111120; border-radius:1px; height:2px; transition:height 0.08s; }
+
+/* CONTROLS */
+.ctrl-row {
+  display:flex; gap:5px; align-items:center; justify-content:center;
+}
+.btn {
+  background: linear-gradient(180deg, #181828 0%, #0e0e1a 100%);
+  border: 1.5px solid #252538;
+  border-radius: 4px;
+  color: #444466;
+  font-family:'VT323',monospace;
+  font-size:14px; letter-spacing:1px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.1s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 2px rgba(0,0,0,0.6);
+  background: #0a0a14;
+}
+.btn.play {
+  background: linear-gradient(180deg, var(--purple), var(--violet));
+  border-color: var(--purple);
+  color: #fff;
+  font-size:15px; padding:6px 16px;
+  box-shadow: 0 2px 14px rgba(123,47,255,0.4), 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.btn.play.on {
+  background: linear-gradient(180deg, var(--blue), #1a6acc);
+  border-color: var(--blue);
+  box-shadow: 0 2px 14px rgba(47,143,255,0.4), 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* VOL */
+.vol-row { display:flex; align-items:center; gap:7px; }
+.vol-lbl { font-family:'VT323',monospace; font-size:12px; color:#1e1e30; letter-spacing:2px; flex-shrink:0; }
+input[type=range] {
+  flex:1; -webkit-appearance:none;
+  height:3px; background:#1a1a2a; border-radius:2px; outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:13px; height:13px; border-radius:50%;
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  border:2px solid var(--purple);
+  box-shadow: 0 0 8px rgba(123,47,255,0.6);
+}
+
+/* EQ bottom */
+.bot-row {
+  display:flex; justify-content:space-between; align-items:flex-end;
+  margin-top:10px; padding-top:10px;
+  border-top:1px solid #111120;
+}
+.eq-bars { display:flex; gap:2px; align-items:flex-end; height:20px; }
+.eq-b { width:4px; border-radius:1px 1px 0 0; transition:height 0.14s; }
+.eq-b:nth-child(1){background:#4455ff;height:5px}
+.eq-b:nth-child(2){background:#5544ff;height:10px}
+.eq-b:nth-child(3){background:#7733ff;height:16px}
+.eq-b:nth-child(4){background:#9922ff;height:13px}
+.eq-b:nth-child(5){background:#bb22ee;height:18px}
+.eq-b:nth-child(6){background:#dd33cc;height:9px}
+.eq-b:nth-child(7){background:#ee44aa;height:6px}
+.eq-b:nth-child(8){background:#ff55bb;height:3px}
+
+.model-txt { font-family:'VT323',monospace; font-size:12px; color:#1a1a28; letter-spacing:3px; }
+
+/* Hidden SC widget */
+#sc-frame { display:none; width:1px; height:1px; position:absolute; left:-9999px; }
+
+/* Install banner (iOS hint) */
+.install-banner {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(90deg, rgba(10,10,20,0.97), rgba(15,10,25,0.97));
+  border-top: 1px solid #251840;
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 12px;
+  z-index: 100;
+  transform: translateY(100%);
+  transition: transform 0.4s ease;
+}
+.install-banner.show { transform: translateY(0); }
+.install-banner img { width:36px; height:36px; border-radius:8px; flex-shrink:0; }
+.install-txt { flex:1; font-family:'VT323',monospace; font-size:15px; color:rgba(170,136,255,0.8); letter-spacing:1px; line-height:1.3; }
+.install-txt span { color:var(--lcd-txt); }
+.install-close {
+  background:none; border:none; color:#333355; font-size:22px;
+  cursor:pointer; font-family:'VT323',monospace; padding:0 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- CASSETTE SWIPER -->
+<div class="swiper-wrap">
+  <div class="swiper-hint" id="swipeHint">◀ SWIPE ▶</div>
+  <div class="swiper-viewport" id="sVP">
+    <div class="swiper-track" id="sTrack"></div>
+  </div>
+</div>
+
+<!-- BOOMBOX -->
+<div class="bb-wrap">
+  <div class="bb-handle"></div>
+  <div class="bb-shell" id="bbShell">
+
+    <div class="top-row">
+      <div class="station-id">
+        <div class="station-call">JADAJAZ</div>
+        <div class="station-sub">RADIO · DJ MIXES</div>
+      </div>
+      <div class="leds">
+        <div class="led p on" id="ledP"></div>
+        <div class="led b on" id="ledB"></div>
+        <div class="led w"    id="ledW"></div>
+      </div>
+    </div>
+
+    <div class="main-row">
+      <div class="spk">
+        <div class="spk-ring"><div class="spk-cone" id="cL"></div></div>
+        <div class="spk-ch">L</div>
+      </div>
+
+      <div class="center">
+        <div class="lcd">
+          <div class="lcd-status" id="lcdSt">READY</div>
+          <div class="lcd-main"><span class="lcd-scroll" id="lcdTxt">SELECT A SET</span></div>
+          <div class="lcd-time" id="lcdClock">--:--</div>
+        </div>
+
+        <div class="deck">
+          <div class="deck-slot">
+            <span class="slot-txt" id="slotTxt">INSERT TAPE</span>
+            <div class="deck-tape" id="dTape">
+              <div class="d-reel" id="rL"></div>
+              <div class="d-info">
+                <div class="d-name" id="dName">—</div>
+                <div class="d-sub">JADAJAZ RADIO</div>
+              </div>
+              <div class="d-reel" id="rR"></div>
+            </div>
+          </div>
+          <div class="vu-row" id="vuRow">
+            <div class="vu-b"></div><div class="vu-b"></div><div class="vu-b"></div>
+            <div class="vu-b"></div><div class="vu-b"></div><div class="vu-b"></div>
+            <div class="vu-b"></div><div class="vu-b"></div>
+          </div>
+        </div>
+
+        <div class="ctrl-row">
+          <button class="btn" onclick="ejectTape()">⏏</button>
+          <button class="btn" onclick="prevSet()">|◀</button>
+          <button class="btn play" id="playBtn" onclick="togglePlay()">▶ PLAY</button>
+          <button class="btn" onclick="nextSet()">▶|</button>
+        </div>
+
+        <div class="vol-row">
+          <span class="vol-lbl">VOL</span>
+          <input type="range" min="0" max="100" value="85" id="vol" oninput="setVol(this.value)">
+        </div>
+      </div>
+
+      <div class="spk">
+        <div class="spk-ring"><div class="spk-cone" id="cR"></div></div>
+        <div class="spk-ch">R</div>
+      </div>
+    </div>
+
+    <div class="bot-row">
+      <div class="eq-bars" id="eqBars">
+        <div class="eq-b"></div><div class="eq-b"></div><div class="eq-b"></div>
+        <div class="eq-b"></div><div class="eq-b"></div><div class="eq-b"></div>
+        <div class="eq-b"></div><div class="eq-b"></div>
+      </div>
+      <div class="model-txt">MX-9000</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- iOS Install Banner -->
+<div class="install-banner" id="installBanner">
+  <img src="https://i1.sndcdn.com/artworks-hFRrQg3J9doMqyT1-WNzGDg-t200x200.png" alt="JadaJaz">
+  <div class="install-txt">Tap <span>Share</span> then <span>Add to Home Screen</span> to install JadaJaz Radio</div>
+  <button class="install-close" onclick="document.getElementById('installBanner').classList.remove('show')">✕</button>
+</div>
+
+<!-- Hidden SoundCloud Widget -->
+<iframe id="sc-frame" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/jada-talia/sets/jadajaz-dj-mixes&auto_play=false&buying=false&sharing=false&download=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&visual=false&show_teaser=false">
+</iframe>
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+<script>
+// ── SETS ──────────────────────────────────────────────────────
+const SETS = [
+  { name:"SHE DID THAT",  genre:"HOUSE · CLUB" },
+  { name:"SEXY SULTRY",   genre:"DEEP SOULFUL · PT.2" },
+  { name:"SEXY SULTRY",   genre:"JERSEY CLUB · FOOTWORK" },
+  { name:"SOUL SUNDAY",   genre:"SOULFUL VIBES" },
+  { name:"SUNDAY AFTNOON",genre:"DEEP · BALTIMORE CLUB" },
+];
+
+// ── STATE ─────────────────────────────────────────────────────
+let idx = 0, playing = false, inserted = false;
+let widget = null, scReady = false;
+let tEQ, tVU, tClock, elapsed = 0;
+const CARD_W = 154;
+
+// ── BUILD CARDS ───────────────────────────────────────────────
+const track = document.getElementById('sTrack');
+SETS.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = `c-card ${i===0?'active':''}`;
+  d.innerHTML = `<div class="c-shell">
+    <div class="c-top">
+      <div class="c-num">SET 0${i+1}</div>
+      <div class="c-name">${s.name}</div>
+      <div class="c-genre">${s.genre}</div>
+    </div>
+    <div class="c-bot">
+      <div class="c-reel"></div>
+      <div class="c-win"></div>
+      <div class="c-reel"></div>
+    </div>
+  </div>`;
+  track.appendChild(d);
+});
+
+function refreshCards() {
+  track.style.transform = `translateX(${-idx * CARD_W}px)`;
+  document.querySelectorAll('.c-card').forEach((c,i) => c.classList.toggle('active', i===idx));
+}
+
+// ── SWIPE ─────────────────────────────────────────────────────
+const vp = document.getElementById('sVP');
+let sx=0, dragging=false, delta=0;
+
+vp.addEventListener('touchstart', e=>{sx=e.touches[0].clientX;dragging=true;delta=0;track.style.transition='none';},{passive:true});
+vp.addEventListener('touchmove', e=>{if(!dragging)return;delta=e.touches[0].clientX-sx;track.style.transform=`translateX(${-idx*CARD_W+delta}px)`;},{passive:true});
+vp.addEventListener('touchend', ()=>{dragging=false;track.style.transition='';if(delta<-40&&idx<SETS.length-1)idx++;else if(delta>40&&idx>0)idx--;refreshCards();});
+vp.addEventListener('mousedown', e=>{sx=e.clientX;dragging=true;delta=0;track.style.transition='none';});
+window.addEventListener('mousemove', e=>{if(!dragging)return;delta=e.clientX-sx;track.style.transform=`translateX(${-idx*CARD_W+delta}px)`;});
+window.addEventListener('mouseup', ()=>{if(!dragging)return;dragging=false;track.style.transition='';if(delta<-40&&idx<SETS.length-1)idx++;else if(delta>40&&idx>0)idx--;refreshCards();});
+
+function prevSet(){ if(idx>0){idx--;refreshCards();} }
+function nextSet(){ if(idx<SETS.length-1){idx++;refreshCards();} }
+
+// ── SOUNDCLOUD ────────────────────────────────────────────────
+window.addEventListener('load', ()=>{
+  widget = SC.Widget(document.getElementById('sc-frame'));
+  widget.bind(SC.Widget.Events.READY, ()=>{
+    scReady=true;
+  });
+  widget.bind(SC.Widget.Events.FINISH, ()=>{
+    const next = (idx+1) % SETS.length;
+    idx = next; refreshCards();
+    setTimeout(()=>{ insertTape(idx); setTimeout(startPlay, 650); }, 300);
+  });
+});
+
+// ── TAPE MECHANICS ────────────────────────────────────────────
+function togglePlay(){
+  if(!inserted){ insertTape(idx); setTimeout(startPlay, 650); return; }
+  const loadedIdx = parseInt(document.getElementById('dTape').dataset.i||'0');
+  if(loadedIdx !== idx){ ejectTape(); setTimeout(()=>{ insertTape(idx); setTimeout(startPlay,650); },450); return; }
+  playing ? pausePlay() : startPlay();
+}
+
+function insertTape(i){
+  const s = SETS[i];
+  const tape = document.getElementById('dTape');
+  tape.dataset.i = i;
+  document.getElementById('slotTxt').style.opacity='0';
+  document.getElementById('dName').textContent = s.name;
+  setTimeout(()=>tape.classList.add('in'),30);
+  inserted = true;
+  setLCD('LOADING', `▶ ${s.name}`);
+}
+
+function ejectTape(){
+  document.getElementById('dTape').classList.remove('in');
+  inserted=false;
+  pausePlay();
+  document.getElementById('slotTxt').style.opacity='1';
+  setLCD('READY','SELECT A SET');
+  document.getElementById('lcdClock').textContent='--:--';
+  document.getElementById('lcdTxt').classList.remove('go');
+  elapsed=0;
+}
+
+function startPlay(){
+  playing=true;
+  const s=SETS[idx];
+  document.getElementById('playBtn').classList.add('on');
+  document.getElementById('playBtn').textContent='⏸ PAUSE';
+  document.getElementById('cL').classList.add('pulse');
+  document.getElementById('cR').classList.add('pulse');
+  document.getElementById('rL').classList.add('spin');
+  document.getElementById('rR').classList.add('spin');
+  document.getElementById('bbShell').classList.add('playing');
+  document.getElementById('ledW').classList.add('on');
+  document.getElementById('lcdTxt').classList.add('go');
+  document.getElementById('swipeHint').style.opacity='0.2';
+  setLCD('ON AIR', `▶ ${s.name} — ${s.genre}`);
+  if(scReady){ widget.skip(idx); widget.setVolume(document.getElementById('vol').value); widget.play(); }
+  tEQ=setInterval(animEQ,140);
+  tVU=setInterval(animVU,90);
+  tClock=setInterval(()=>{
+    elapsed++;
+    document.getElementById('lcdClock').textContent=`${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
+  },1000);
+}
+
+function pausePlay(){
+  playing=false;
+  clearInterval(tEQ);clearInterval(tVU);clearInterval(tClock);
+  document.getElementById('playBtn').classList.remove('on');
+  document.getElementById('playBtn').textContent='▶ PLAY';
+  document.getElementById('cL').classList.remove('pulse');
+  document.getElementById('cR').classList.remove('pulse');
+  document.getElementById('rL').classList.remove('spin');
+  document.getElementById('rR').classList.remove('spin');
+  document.getElementById('bbShell').classList.remove('playing');
+  document.getElementById('ledW').classList.remove('on');
+  document.getElementById('lcdTxt').classList.remove('go');
+  document.getElementById('swipeHint').style.opacity='';
+  resetBars();
+  if(scReady) widget.pause();
+}
+
+function setLCD(st,txt){
+  document.getElementById('lcdSt').textContent=st;
+  document.getElementById('lcdTxt').textContent=txt;
+}
+function setVol(v){ if(scReady) widget.setVolume(parseInt(v)); }
+
+function animEQ(){ document.querySelectorAll('.eq-b').forEach(b=>b.style.height=(Math.random()*18+2)+'px'); }
+function animVU(){ document.querySelectorAll('.vu-b').forEach(b=>b.style.height=(Math.random()*11+2)+'px'); }
+function resetBars(){
+  const h=[5,10,16,13,18,9,6,3];
+  document.querySelectorAll('.eq-b').forEach((b,i)=>b.style.height=h[i]+'px');
+  document.querySelectorAll('.vu-b').forEach(b=>b.style.height='2px');
+}
+
+// ── PWA / SERVICE WORKER ──────────────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// iOS install hint (show after 4s if not standalone)
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.navigator.standalone;
+if(isIOS && !isStandalone){
+  setTimeout(()=>document.getElementById('installBanner').classList.add('show'), 4000);
+}
+
+refreshCards();
+</script>
+</body>
+</html>
